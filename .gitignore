@@ -1,5 +1,5 @@
 # Project exclude paths
 /.gradle/
+/gradle
 /build/
-/build/classes/kotlin/jvm/main/
-/build/js/packages/kotlin-web-app-template/kotlin/
+/.idea
