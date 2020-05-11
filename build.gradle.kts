@@ -43,7 +43,8 @@ kotlin {
                 implementation(kotlin("stdlib-jdk8"))
                 implementation("io.ktor:ktor-server-netty:$ktorVersion")
                 implementation("io.ktor:ktor-html-builder:$ktorVersion")
-                implementation("io.ktor:ktor-jackson:$ktorVersion")
+                implementation("io.ktor:ktor-serialization:$ktorVersion")
+                implementation("io.ktor:ktor-websockets:$ktorVersion")
                 implementation("ch.qos.logback:logback-classic:1.2.3")
             }
         }
@@ -60,8 +61,8 @@ kotlin {
                 implementation("org.jetbrains:kotlin-react:16.13.1-pre.104-kotlin-1.3.72")
                 implementation("org.jetbrains:kotlin-react-dom:16.13.1-pre.104-kotlin-1.3.72")
                 implementation("io.ktor:ktor-client-serialization-js:$ktorVersion")
-                implementation("io.ktor:ktor-client-jackson:$ktorVersion")
                 implementation("io.ktor:ktor-client-json-js:$ktorVersion")
+                implementation("io.ktor:ktor-client-websockets-js:$ktorVersion")
                 implementation(npm("text-encoding", "0.7.0"))
                 implementation(npm("abort-controller", "3.0.0"))
                 implementation(npm("utf-8-validate", "5.0.2"))
