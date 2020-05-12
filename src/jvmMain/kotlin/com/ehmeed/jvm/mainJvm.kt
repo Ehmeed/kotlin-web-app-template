@@ -1,7 +1,5 @@
 package com.ehmeed.jvm
 
-import com.ehmeed.common.aaa
-import com.ehmeed.common.serverHost
 import com.ehmeed.common.serverPort
 import io.ktor.application.Application
 import io.ktor.application.call
@@ -21,7 +19,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.channels.Channel
 
 fun main() {
     println("Starting JVM server")
@@ -51,19 +49,30 @@ fun Application.module() {
     routes()
 }
 
+val messages = Channel<String>()
+
 private fun Application.routes() {
     install(Routing) {
         get("/") {
             call.respond("root")
         }
         webSocket("/") {
+            println("Received connection")
             for (frame in incoming) {
                 when (frame) {
                     is Frame.Text -> {
                         val text = frame.readText()
-                        outgoing.send(Frame.Text("Ses bul"))
-                        delay(2000)
-                        outgoing.send(Frame.Text("Jo to teda ses"))
+                        if (text == "read") {
+                            println("Received frame read")
+                            for (msg in messages) {
+                                println("Sending msg: " + msg)
+                                outgoing.send(Frame.Text(msg))
+                            }
+                            outgoing.close()
+                        } else {
+                            println("Recieved msg: " + text)
+                            messages.send(text)
+                        }
                     }
                 }
             }

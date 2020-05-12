@@ -7,20 +7,13 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
 import io.ktor.client.request.get
 import io.ktor.http.Url
-import kotlinx.coroutines.*
-import kotlinx.css.Color
-import kotlinx.css.backgroundColor
-import kotlinx.css.position
-import kotlinx.css.zIndex
+import kotlinx.coroutines.async
+import kotlinx.coroutines.await
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLDivElement
-import react.*
-import react.dom.div
-import react.dom.render
-import styled.StyleSheet
-import styled.css
-import styled.styledDiv
 import kotlin.browser.document
 import kotlin.browser.window
 
@@ -38,16 +31,11 @@ private fun maina() {
     println("Using npm package - " + sorted(arrayOf(1, 2, 3, 4, 5)))
     document.bgColor = "FFAA12"
     (document.getElementById("root") as HTMLDivElement).innerHTML = "Manipulating DOM!"
-    render(document.getElementById("root")) {
-        child(Welcome::class) {
-            attrs.name = "react"
-        }
-    }
 }
 
 private fun initalizeCanvas(): HTMLCanvasElement {
-     val canvas = document.createElement("canvas") as HTMLCanvasElement
-     val context = canvas.getContext("2d") as CanvasRenderingContext2D
+    val canvas = document.createElement("canvas") as HTMLCanvasElement
+    val context = canvas.getContext("2d") as CanvasRenderingContext2D
     context.canvas.width = window.innerWidth
     context.canvas.height = window.innerHeight
     document.body!!.appendChild(canvas)
@@ -64,52 +52,12 @@ private fun initalizeCanvas(): HTMLCanvasElement {
 
 external private fun btoa(string: String): String
 
-external private fun  functionWithOptionalParameters(string: String, optionalInt: Int = definedExternally): Unit
+external private fun functionWithOptionalParameters(string: String, optionalInt: Int = definedExternally): Unit
 
 @JsModule("is-sorted")
 @JsNonModule
 external private fun <T> sorted(a: Array<T>): Boolean
 
-
-private interface WelcomeProps : RProps {
-    var name: String
-}
-
-private interface WelcomeState : RState {
-    var list: List<List<Int>>?
-}
-
-private class Welcome : RComponent<WelcomeProps, WelcomeState>() {
-    override  fun RBuilder.render() {
-        styledDiv {
-            css { +Styles.styles }
-            +"Hello, ${props.name}"
-            state.list?.forEach {
-                div {
-                    +it.toString()
-                }
-            }
-        }
-        initalizeCanvas()
-    }
-
-    override  fun WelcomeState.init() {
-         val mainScope = MainScope()
-
-        mainScope.launch {
-             val videos = fetchVideoCor()
-             setState { list = videos }
-        }
-    }
-}
-
-private object Styles : StyleSheet("Styles", isStatic = true) {
-     val styles by css {
-        position = kotlinx.css.Position.absolute
-        backgroundColor = Color.green
-        zIndex = 2
-    }
-}
 
 suspend private fun fetchVideo(id: Int): List<Int> =
     window.fetch("http://$serverHost:$serverPort/data")

@@ -52,14 +52,10 @@ kotlin {
         val jsMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-js"))
-                implementation(npm("react", "16.13.1"))
-                implementation(npm("react-dom", "16.13.1"))
                 implementation(npm("is-sorted"))
-                implementation(npm("inline-style-prefixer", "^6.0.0"))
                 implementation("org.jetbrains:kotlin-css:1.0.0-pre.104-kotlin-1.3.72")
-                implementation("org.jetbrains:kotlin-styled:1.0.0-pre.104-kotlin-1.3.72")
-                implementation("org.jetbrains:kotlin-react:16.13.1-pre.104-kotlin-1.3.72")
-                implementation("org.jetbrains:kotlin-react-dom:16.13.1-pre.104-kotlin-1.3.72")
+                implementation("org.jetbrains:kotlin-css-js:1.0.0-pre.104-kotlin-1.3.72")
+                implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.6.11")
                 implementation("io.ktor:ktor-client-serialization-js:$ktorVersion")
                 implementation("io.ktor:ktor-client-json-js:$ktorVersion")
                 implementation("io.ktor:ktor-client-websockets-js:$ktorVersion")
