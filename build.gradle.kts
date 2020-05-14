@@ -1,5 +1,6 @@
 plugins {
     kotlin("multiplatform") version "1.3.72"
+    kotlin("plugin.serialization") version "1.3.72"
 }
 
 group = "com.ehmeed"
@@ -25,10 +26,13 @@ kotlin {
     }
     jvm()
 
+    val serializationVersion = "0.20.0-mpp-dev-7"
+
     sourceSets {
         val commonMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-common"))
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serializationVersion")
             }
         }
         val commonTest by getting {
@@ -46,6 +50,7 @@ kotlin {
                 implementation("io.ktor:ktor-serialization:$ktorVersion")
                 implementation("io.ktor:ktor-websockets:$ktorVersion")
                 implementation("ch.qos.logback:logback-classic:1.2.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serializationVersion")
             }
         }
 
@@ -59,6 +64,7 @@ kotlin {
                 implementation("io.ktor:ktor-client-serialization-js:$ktorVersion")
                 implementation("io.ktor:ktor-client-json-js:$ktorVersion")
                 implementation("io.ktor:ktor-client-websockets-js:$ktorVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serializationVersion")
                 implementation(npm("text-encoding", "0.7.0"))
                 implementation(npm("abort-controller", "3.0.0"))
                 implementation(npm("utf-8-validate", "5.0.2"))

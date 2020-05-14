@@ -1,6 +1,10 @@
 package com.ehmeed.common.snake.domain
 
-class RegularSnake(override val position: MutableList<Position>, private var direction: Direction = Direction.values().random()) : Snake {
+class RegularSnake(
+    override val id: String,
+    override val position: MutableList<Position>,
+    private var direction: Direction = Direction.values().random()
+) : Snake {
 
     private var tail: Position = position.last()
 

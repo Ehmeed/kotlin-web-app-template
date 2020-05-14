@@ -13,12 +13,6 @@ class Game(
     val snakes: MutableList<Snake> = mutableListOf(),
     val apples: MutableList<Apple> = mutableListOf()
 ) {
-
-    init {
-        apples.add(Apple(randomEmptyPosition()))
-        snakes.add(generateRandomSnake())
-    }
-
     fun step() {
         val eatenApplesPositions =
             snakes.onEach { it.step() }
@@ -31,7 +25,8 @@ class Game(
     }
 
     @OptIn(ExperimentalStdlibApi::class)
-    fun generateRandomSnake(): Snake = RegularSnake(
+    fun generateRandomSnake(id: String): Snake = RegularSnake(
+        id = id,
         position = buildList<Position> {
             val head = randomEmptyPosition()
             add(head)
@@ -44,6 +39,14 @@ class Game(
         }.toMutableList()
     )
 
+    fun addSnake(id: String) {
+        this.snakes.add(generateRandomSnake(id))
+    }
+
+    fun addApple() {
+        this.apples.add(Apple(randomEmptyPosition()))
+    }
+
     private fun randomEmptyPosition(): Position =
         (0..width).shuffled().zip((0..height).shuffled())
             .map { Position(it.first, it.second) }
@@ -53,5 +56,12 @@ class Game(
 
     private fun Position.isInCollision(): Boolean  {
         return x < 0 || x > width || y < 0 || y > height || snakes.flatMap { it.position }.count { it == this } > 1
+    }
+
+    override fun toString(): String {
+        return """
+            snakes: ${this.snakes}
+            apples: ${this.apples}
+        """.trimIndent()
     }
 }

@@ -30,16 +30,8 @@ fun main() {
 
     val canvas = document.create.canvas {
         myStyle {
-//            padding = "0"
-//            margin = "auto"
-//            display = Display.block
             width = 800.px
             height = 640.px
-//            position = Position.absolute
-//            top = 0.px
-//            bottom = 0.px
-//            left = 0.px
-//            right = 0.px
         }
     }
     val context = canvas.getContext("2d") as CanvasRenderingContext2D
@@ -48,9 +40,6 @@ fun main() {
 
     root.appendChild(canvas)
     document.body!!.appendChild(root)
-
-    // snake multiplayer - autorun + reset button
-    // chat with bubble heads
 
 
 

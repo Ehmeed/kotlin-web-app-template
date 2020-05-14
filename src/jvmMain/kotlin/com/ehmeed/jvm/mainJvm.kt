@@ -1,6 +1,8 @@
 package com.ehmeed.jvm
 
 import com.ehmeed.common.serverPort
+import com.ehmeed.common.snake.Game
+import com.ehmeed.common.snake.net.Command
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -19,10 +21,45 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
-fun main() {
+fun <T> Channel<T>.pollAll(): Sequence<T> {
+    return generateSequence { this.poll() }
+        .takeWhile { it != null }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+val gameState = BroadcastChannel<Game>(Channel.UNLIMITED)
+val commands = Channel<Command>(Channel.UNLIMITED)
+
+fun main() = runBlocking<Unit> {
     println("Starting JVM server")
+
+    val game = Game(width = 800, height = 600)
+    launch {
+        game.step()
+        gameState.send(game)
+        delay(1000)
+        commands.pollAll().map { cmd -> cmd to game.snakes.find { it.id == cmd.snakeId } }
+            .map {
+                when (val cmd = it.first) {
+                    is Command.Register -> {
+                        game.addSnake(cmd.snakeId)
+                        game.addApple()
+                    }
+                    is Command.Turn -> {
+                        if (it.second != null) it.second!!.changeDirection(cmd.direction)
+                    }
+                }
+            }
+    }
+
 
     val server = embeddedServer(
         Netty,
@@ -49,31 +86,29 @@ fun Application.module() {
     routes()
 }
 
-val messages = Channel<String>()
 
 private fun Application.routes() {
     install(Routing) {
         get("/") {
             call.respond("root")
         }
-        webSocket("/") {
-            println("Received connection")
-            for (frame in incoming) {
-                when (frame) {
-                    is Frame.Text -> {
-                        val text = frame.readText()
-                        if (text == "read") {
-                            println("Received frame read")
-                            for (msg in messages) {
-                                println("Sending msg: " + msg)
-                                outgoing.send(Frame.Text(msg))
-                            }
-                            outgoing.close()
-                        } else {
-                            println("Recieved msg: " + text)
-                            messages.send(text)
+        webSocket("/snake/join") {
+            launch {
+                for (frame in incoming) {
+                    when (frame) {
+                        is Frame.Text -> {
+                            val text = frame.readText()
+                            // Frame to command
+                            // send to channel
+
                         }
                     }
+                }
+            }
+            launch {
+                for (update in gameState.openSubscription()) {
+                    // update to Frame
+//                    send()
                 }
             }
         }
