@@ -12,7 +12,6 @@ repositories {
     jcenter()
     mavenCentral()
 }
-
 kotlin {
     js {
         browser {
@@ -26,7 +25,7 @@ kotlin {
     }
     jvm()
 
-    val serializationVersion = "0.20.0-mpp-dev-7"
+    val serializationVersion = "0.20.0"
 
     sourceSets {
         val commonMain by getting {

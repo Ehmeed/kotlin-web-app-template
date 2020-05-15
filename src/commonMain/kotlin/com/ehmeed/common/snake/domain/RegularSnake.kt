@@ -1,5 +1,8 @@
 package com.ehmeed.common.snake.domain
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 class RegularSnake(
     override val id: String,
     override val position: MutableList<Position>,

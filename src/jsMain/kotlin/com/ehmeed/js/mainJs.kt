@@ -1,20 +1,32 @@
 package com.ehmeed.js
 
+import com.ehmeed.common.serverHost
+import com.ehmeed.common.serverPort
+import com.ehmeed.common.snake.Game
+import com.ehmeed.common.snake.net.Command
+import com.ehmeed.common.snake.serialization.jsonSerializer
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
 import io.ktor.client.features.websocket.WebSockets
+import io.ktor.client.features.websocket.ws
+import io.ktor.http.cio.websocket.Frame
+import io.ktor.http.cio.websocket.readText
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.css.*
 import kotlinx.html.dom.create
 import kotlinx.html.js.canvas
 import kotlinx.html.js.div
 import kotlinx.html.style
+import kotlinx.serialization.ImplicitReflectionSerializer
 import org.w3c.dom.*
 import kotlin.browser.document
 import kotlin.browser.window
 
 fun myStyle(builder: CSSBuilder.() -> Unit): String = CSSBuilder().apply(builder).toString()
 
+@OptIn(ImplicitReflectionSerializer::class)
 fun main() {
     println("Starting JS")
 
@@ -40,6 +52,22 @@ fun main() {
 
     root.appendChild(canvas)
     document.body!!.appendChild(root)
+
+    GlobalScope.launch {
+        client.ws(host = serverHost, port = serverPort, path = "/snake") {
+            val cmd = Command.Register("new snake").serialize()
+            println("sending cmd: $cmd")
+            send(Frame.Text(cmd))
+            println("sent command")
+            for (update in incoming) {
+                if (update is Frame.Text) {
+                    val game = jsonSerializer.fromJson<Game>(jsonSerializer.parseJson(update.readText()))
+                    println(game.snakes)
+                    println(game.apples)
+                }
+            }
+        }
+    }
 
 
 

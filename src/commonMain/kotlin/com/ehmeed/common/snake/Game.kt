@@ -4,9 +4,11 @@ import com.ehmeed.common.snake.domain.Apple
 import com.ehmeed.common.snake.domain.Position
 import com.ehmeed.common.snake.domain.RegularSnake
 import com.ehmeed.common.snake.domain.Snake
+import kotlinx.serialization.Serializable
 import kotlin.random.Random
 import kotlin.random.nextInt
 
+@Serializable
 class Game(
     val width: Int,
     val height: Int,
