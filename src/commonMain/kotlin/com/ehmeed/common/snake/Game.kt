@@ -10,6 +10,7 @@ import kotlin.random.nextInt
 
 @Serializable
 class Game(
+    val blockSize: Int = 20,
     val width: Int,
     val height: Int,
     val snakes: MutableList<Snake> = mutableListOf(),
@@ -17,12 +18,13 @@ class Game(
 ) {
     fun step() {
         val eatenApplesPositions =
-            snakes.onEach { it.step() }
+            snakes.onEach { it.step(blockSize) }
                 .filter { apples.any { apple -> apple.position == it.head() } }
                 .onEach { it.growTail() }
                 .map { it.head() }
         apples.removeAll { it.position in eatenApplesPositions }
-        repeat(eatenApplesPositions.size) { apples.add(Apple(randomEmptyPosition())) }
+        if (apples.isEmpty()) addApple()
+//        repeat(eatenApplesPositions.size) { apples.add(Apple(randomEmptyPosition())) }
         snakes.removeAll { it.head().isInCollision() }
     }
 
@@ -41,6 +43,12 @@ class Game(
         }.toMutableList()
     )
 
+    fun addPlayer(id: String) {
+        println("Adding player id: $id")
+        addSnake(id)
+        addApple()
+    }
+
     fun addSnake(id: String) {
         this.snakes.add(generateRandomSnake(id))
     }
@@ -49,12 +57,17 @@ class Game(
         this.apples.add(Apple(randomEmptyPosition()))
     }
 
-    private fun randomEmptyPosition(): Position =
-        (0..width).shuffled().zip((0..height).shuffled())
-            .map { Position(it.first, it.second) }
-            .first { !it.isOccupied() }
+    private fun randomEmptyPosition(): Position  {
+        var position: Position? = null
+        while (position == null || position.isOccupied()) {
+            val x = (1 until width).shuffled().first { it % blockSize == 0 }
+            val y = (1 until height).shuffled().first { it % blockSize == 0 }
+            position = Position(x, y)
+        }
+        return position!!
+    }
 
-    private fun Position.isOccupied(): Boolean = snakes.none { it.occupies(this) } && apples.none { it.occupies(this) }
+    private fun Position.isOccupied(): Boolean = snakes.any { it.occupies(this) } || apples.any { it.occupies(this) }
 
     private fun Position.isInCollision(): Boolean  {
         return x < 0 || x > width || y < 0 || y > height || snakes.flatMap { it.position }.count { it == this } > 1

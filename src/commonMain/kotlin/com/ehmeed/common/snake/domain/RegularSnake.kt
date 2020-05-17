@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 class RegularSnake(
     override val id: String,
     override val position: MutableList<Position>,
-    private var direction: Direction = Direction.values().random()
+    override var direction: Direction = Direction.values().random()
 ) : Snake {
 
     private var tail: Position = position.last()
@@ -17,7 +17,7 @@ class RegularSnake(
 
     override fun head(): Position = position.first()
 
-    override fun occupies(position: Position) = position !in this.position
+    override fun occupies(position: Position) = position in this.position
 
     override fun growTail() {
         position.add(tail)
@@ -28,13 +28,13 @@ class RegularSnake(
     }
 
     @OptIn(ExperimentalStdlibApi::class)
-    override fun step(): Unit {
+    override fun step(blockSize: Int): Unit {
         val target = with(head()) {
             when (direction) {
-                Direction.UP -> copy(y = y - 1)
-                Direction.DOWN -> copy(y = y + 1)
-                Direction.LEFT -> copy(x = x - 1)
-                Direction.RIGHT -> copy(x = x + 1)
+                Direction.UP -> copy(y = y - blockSize)
+                Direction.DOWN -> copy(y = y + blockSize)
+                Direction.LEFT -> copy(x = x - blockSize)
+                Direction.RIGHT -> copy(x = x + blockSize)
             }
         }
         position.add(0, target)
