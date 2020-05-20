@@ -9,30 +9,33 @@ import kotlin.random.Random
 import kotlin.random.nextInt
 
 @Serializable
-class Game(
+data class Game(
+    val id: String,
     val blockSize: Int = 20,
     val width: Int,
     val height: Int,
     val snakes: MutableList<Snake> = mutableListOf(),
     val apples: MutableList<Apple> = mutableListOf()
 ) {
+    var tick = 0
+
     fun step() {
         val eatenApplesPositions =
             snakes.onEach { it.step(blockSize) }
                 .filter { apples.any { apple -> apple.position == it.head() } }
-                .onEach { it.growTail() }
+                .onEach { it.onAppleEaten() }
                 .map { it.head() }
         apples.removeAll { it.position in eatenApplesPositions }
         if (apples.isEmpty()) addApple()
-//        repeat(eatenApplesPositions.size) { apples.add(Apple(randomEmptyPosition())) }
         snakes.removeAll { it.head().isInCollision() }
+        tick += 1
     }
 
     @OptIn(ExperimentalStdlibApi::class)
     fun generateRandomSnake(id: String): Snake = RegularSnake(
         id = id,
         position = buildList<Position> {
-            val head = randomEmptyPosition()
+            val head = randomEmptyPosition(nearCenter = true)
             add(head)
             val body = Position(head.x + Random.nextInt(-1..1), head.y + Random.nextInt(-1..1))
             if (body == head) {
@@ -57,11 +60,21 @@ class Game(
         this.apples.add(Apple(randomEmptyPosition()))
     }
 
-    private fun randomEmptyPosition(): Position  {
+    private fun randomEmptyPosition(nearCenter: Boolean = false): Position  {
         var position: Position? = null
+        val (minX, maxX) = if (nearCenter) {
+            width/4 to 3 * (width/4)
+        } else {
+            1 to width
+        }
+        val (minY, maxY) = if (nearCenter) {
+            height/4 to 3 * (height/4)
+        } else {
+            1 to height
+        }
         while (position == null || position.isOccupied()) {
-            val x = (1 until width).shuffled().first { it % blockSize == 0 }
-            val y = (1 until height).shuffled().first { it % blockSize == 0 }
+            val x = (minX until maxX).shuffled().first { it % blockSize == 0 }
+            val y = (minY until maxY).shuffled().first { it % blockSize == 0 }
             position = Position(x, y)
         }
         return position!!
@@ -73,10 +86,7 @@ class Game(
         return x < 0 || x > width || y < 0 || y > height || snakes.flatMap { it.position }.count { it == this } > 1
     }
 
-    override fun toString(): String {
-        return """
-            snakes: ${this.snakes}
-            apples: ${this.apples}
-        """.trimIndent()
+    fun isActive(): Boolean {
+        return true
     }
 }

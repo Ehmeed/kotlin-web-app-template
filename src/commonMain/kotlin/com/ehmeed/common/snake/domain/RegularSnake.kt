@@ -19,7 +19,7 @@ class RegularSnake(
 
     override fun occupies(position: Position) = position in this.position
 
-    override fun growTail() {
+    override fun onAppleEaten() {
         position.add(tail)
     }
 

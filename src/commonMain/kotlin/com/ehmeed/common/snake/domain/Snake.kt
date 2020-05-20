@@ -8,6 +8,6 @@ interface Snake {
     fun head(): Position
     fun step(blockSize: Int)
     fun occupies(position: Position): Boolean
-    fun growTail()
+    fun onAppleEaten()
     fun changeDirection(direction: Direction)
 }

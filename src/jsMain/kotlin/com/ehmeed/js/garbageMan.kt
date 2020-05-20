@@ -33,21 +33,6 @@ private fun maina() {
     (document.getElementById("root") as HTMLDivElement).innerHTML = "Manipulating DOM!"
 }
 
-private fun initalizeCanvas(): HTMLCanvasElement {
-    val canvas = document.createElement("canvas") as HTMLCanvasElement
-    val context = canvas.getContext("2d") as CanvasRenderingContext2D
-    context.canvas.width = window.innerWidth
-    context.canvas.height = window.innerHeight
-    document.body!!.appendChild(canvas)
-
-    context.save()
-    context.moveTo(10.0, 10.0)
-    context.lineWidth = 20.0
-    context.bezierCurveTo(20.0, 30.0, 40.0, 50.0, 10.0, 10.0)
-    context.stroke()
-    context.restore()
-    return canvas
-}
 
 
 external private fun btoa(string: String): String

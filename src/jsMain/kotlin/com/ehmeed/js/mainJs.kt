@@ -28,11 +28,15 @@ import org.w3c.dom.*
 import org.w3c.dom.events.KeyboardEvent
 import kotlin.browser.document
 import kotlin.browser.window
+import kotlin.random.Random
 
 fun myStyle(builder: CSSBuilder.() -> Unit): String = CSSBuilder().apply(builder).toString()
 
 val snakeId = List(20) { ('a'..'z').random() }.joinToString(separator = "")
 private val commands = Channel<Command>(Channel.CONFLATED)
+
+val gameId
+    get() = if(Random.nextBoolean()) "todo" else "haha"
 
 @OptIn(ImplicitReflectionSerializer::class)
 fun main() {
@@ -68,7 +72,7 @@ fun main() {
             launch {
                 canvasContext.renderGetReadyMessage()
                 delay(3000)
-                send(Frame.Text(Command.Register(snakeId).serialize()))
+                send(Frame.Text(Command.Register(snakeId, gameId).serialize()))
             }
             launch {
                 for (cmd in commands) send(Frame.Text(cmd.serialize()))
@@ -77,6 +81,7 @@ fun main() {
             for (update in incoming) {
                 if (update is Frame.Text) {
                     val game = jsonSerializer.fromJson<Game>(jsonSerializer.parseJson(update.readText()))
+                    println(game)
                     canvasContext.render(game)
                 }
             }
@@ -93,7 +98,6 @@ fun registerControls() {
             KeyCode.LEFT -> Direction.LEFT
             KeyCode.RIGHT -> Direction.RIGHT
             KeyCode.Q -> {
-                GlobalScope.launch { commands.send(Command.RemoveTail(snakeId)) }
                 null
             }
             KeyCode.IGNORED -> null
@@ -101,7 +105,7 @@ fun registerControls() {
         if (direction != null) {
             event.preventDefault()
             GlobalScope.launch {
-                commands.send(Command.Turn(snakeId, direction))
+                commands.send(Command.Turn(snakeId, gameId, direction))
             }
         }
     })
