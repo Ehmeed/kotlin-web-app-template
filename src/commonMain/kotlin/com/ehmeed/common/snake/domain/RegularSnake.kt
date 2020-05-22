@@ -11,6 +11,9 @@ class RegularSnake(
 
     private var tail: Position = position.last()
 
+    override val score: Int
+        get() = this.position.size
+
     init {
         require(position.isNotEmpty()) { "Cannot create snake with no position" }
     }

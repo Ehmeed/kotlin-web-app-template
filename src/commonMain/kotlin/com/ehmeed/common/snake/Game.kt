@@ -17,9 +17,9 @@ data class Game(
     val snakes: MutableList<Snake> = mutableListOf(),
     val apples: MutableList<Apple> = mutableListOf()
 ) {
-    var tick = 0
+    private var step = 0
 
-    fun step() {
+    fun tick() {
         val eatenApplesPositions =
             snakes.onEach { it.step(blockSize) }
                 .filter { apples.any { apple -> apple.position == it.head() } }
@@ -28,7 +28,7 @@ data class Game(
         apples.removeAll { it.position in eatenApplesPositions }
         if (apples.isEmpty()) addApple()
         snakes.removeAll { it.head().isInCollision() }
-        tick += 1
+        step += 1
     }
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -83,7 +83,7 @@ data class Game(
     private fun Position.isOccupied(): Boolean = snakes.any { it.occupies(this) } || apples.any { it.occupies(this) }
 
     private fun Position.isInCollision(): Boolean  {
-        return x < 0 || x > width || y < 0 || y > height || snakes.flatMap { it.position }.count { it == this } > 1
+        return x < 0 || x >= width || y < 0 || y >= height || snakes.flatMap { it.position }.count { it == this } > 1
     }
 
     fun isActive(): Boolean {

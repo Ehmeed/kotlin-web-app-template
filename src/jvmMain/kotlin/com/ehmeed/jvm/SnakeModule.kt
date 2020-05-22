@@ -4,14 +4,14 @@ import com.ehmeed.common.snake.Game
 import com.ehmeed.common.snake.net.Command
 import io.ktor.application.Application
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 
 @OptIn(ExperimentalCoroutinesApi::class)
-private val gameUpdates = BroadcastChannel<List<Game>>(64)
+private val gameUpdates = ConflatedBroadcastChannel<List<Game>>()
 private val commands = Channel<Command>(Channel.UNLIMITED)
 
-private const val tickInterval: Long = 100
+private const val tickInterval: Long = 500
 
 private val games: MutableList<Game> = mutableListOf()
 
@@ -20,7 +20,7 @@ fun Application.snakeModule() {
     games.add(Game("haha", 20, 800, 600))
     launch(Dispatchers.Default) {
         while (isActive) {
-            games.forEach(Game::step)
+            games.forEach(Game::tick)
             gameUpdates.send(games)
             delay(tickInterval)
             commands.pollAll().forEach { handle(it) }

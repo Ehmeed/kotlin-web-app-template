@@ -12,10 +12,9 @@ import io.ktor.response.respond
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.websocket.webSocket
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.launch
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.stringify
 
@@ -28,7 +27,7 @@ fun Application.routing(commands: SendChannel<Command>, gameState: BroadcastChan
         }
         webSocket("/snake") {
             var gameId: String? = null
-            launch() {
+            launch(Dispatchers.Default) {
                 for (frame in incoming) {
                     if (frame !is Frame.Text) continue
                     val text = frame.readText()
@@ -37,11 +36,13 @@ fun Application.routing(commands: SendChannel<Command>, gameState: BroadcastChan
                     commands.send(command)
                 }
             }
+
             for (update in gameState.openSubscription()) {
+                ensureActive()
                 val activeGame = update.firstOrNull { it.id == gameId }
                 if (activeGame != null) {
                     val gameUpdate = jsonSerializer.stringify(activeGame)
-                    send(Frame.Text(gameUpdate))
+                    outgoing.send(Frame.Text(gameUpdate))
                 }
             }
         }

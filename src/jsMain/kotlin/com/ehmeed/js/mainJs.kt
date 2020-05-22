@@ -6,6 +6,8 @@ import com.ehmeed.common.snake.Game
 import com.ehmeed.common.snake.domain.Direction
 import com.ehmeed.common.snake.net.Command
 import com.ehmeed.common.snake.serialization.jsonSerializer
+import com.ehmeed.js.render.render
+import com.ehmeed.js.render.renderGetReadyMessage
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
@@ -35,8 +37,7 @@ fun myStyle(builder: CSSBuilder.() -> Unit): String = CSSBuilder().apply(builder
 val snakeId = List(20) { ('a'..'z').random() }.joinToString(separator = "")
 private val commands = Channel<Command>(Channel.CONFLATED)
 
-val gameId
-    get() = if(Random.nextBoolean()) "todo" else "haha"
+val gameId = if(Random.nextBoolean()) "todo" else "haha"
 
 @OptIn(ImplicitReflectionSerializer::class)
 fun main() {
@@ -54,13 +55,13 @@ fun main() {
 
     val canvas = document.create.canvas {
         myStyle {
-            width = 800.px
-            height = 640.px
+            width = window.innerWidth.px
+            height = window.innerHeight.px
         }
     }
     val canvasContext = canvas.getContext("2d") as CanvasRenderingContext2D
-    canvasContext.canvas.width = 800
-    canvasContext.canvas.height = 640
+    canvasContext.canvas.width = window.innerWidth
+    canvasContext.canvas.height = window.innerHeight
 
     root.appendChild(canvas)
     document.body!!.appendChild(root)
@@ -71,13 +72,13 @@ fun main() {
         client.ws(host = serverHost, port = serverPort, path = "/snake") {
             launch {
                 canvasContext.renderGetReadyMessage()
-                delay(3000)
+                delay(1000)
                 send(Frame.Text(Command.Register(snakeId, gameId).serialize()))
             }
             launch {
                 for (cmd in commands) send(Frame.Text(cmd.serialize()))
             }
-            delay(3500)
+            delay(1500)
             for (update in incoming) {
                 if (update is Frame.Text) {
                     val game = jsonSerializer.fromJson<Game>(jsonSerializer.parseJson(update.readText()))
