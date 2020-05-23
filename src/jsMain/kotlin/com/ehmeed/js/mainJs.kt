@@ -6,8 +6,8 @@ import com.ehmeed.common.snake.Game
 import com.ehmeed.common.snake.domain.Direction
 import com.ehmeed.common.snake.net.Command
 import com.ehmeed.common.snake.serialization.jsonSerializer
-import com.ehmeed.js.render.render
-import com.ehmeed.js.render.renderGetReadyMessage
+import com.ehmeed.js.render.game.render
+import com.ehmeed.js.render.game.renderGetReadyMessage
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
@@ -26,18 +26,18 @@ import kotlinx.html.js.canvas
 import kotlinx.html.js.div
 import kotlinx.html.style
 import kotlinx.serialization.ImplicitReflectionSerializer
+import kotlinx.serialization.stringify
 import org.w3c.dom.*
 import org.w3c.dom.events.KeyboardEvent
 import kotlin.browser.document
 import kotlin.browser.window
-import kotlin.random.Random
 
 fun myStyle(builder: CSSBuilder.() -> Unit): String = CSSBuilder().apply(builder).toString()
 
 val snakeId = List(20) { ('a'..'z').random() }.joinToString(separator = "")
 private val commands = Channel<Command>(Channel.CONFLATED)
 
-val gameId = if(Random.nextBoolean()) "todo" else "haha"
+val gameId = "todo"
 
 @OptIn(ImplicitReflectionSerializer::class)
 fun main() {
@@ -73,10 +73,10 @@ fun main() {
             launch {
                 canvasContext.renderGetReadyMessage()
                 delay(1000)
-                send(Frame.Text(Command.Register(snakeId, gameId).serialize()))
+                send(Frame.Text(jsonSerializer.stringify<Command>(Command.Register(snakeId, gameId))))
             }
             launch {
-                for (cmd in commands) send(Frame.Text(cmd.serialize()))
+                for (cmd in commands) send(Frame.Text(jsonSerializer.stringify(cmd)))
             }
             delay(1500)
             for (update in incoming) {

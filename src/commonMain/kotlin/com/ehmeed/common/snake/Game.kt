@@ -19,15 +19,25 @@ data class Game(
 ) {
     private var step = 0
 
+    init {
+        require(width % blockSize == 0 && height % blockSize == 0) { "Illegal game dimensions: ${width}x${height}:$blockSize" }
+    }
+
     fun tick() {
-        val eatenApplesPositions =
-            snakes.onEach { it.step(blockSize) }
-                .filter { apples.any { apple -> apple.position == it.head() } }
-                .onEach { it.onAppleEaten() }
-                .map { it.head() }
-        apples.removeAll { it.position in eatenApplesPositions }
-        if (apples.isEmpty()) addApple()
-        snakes.removeAll { it.head().isInCollision() }
+        if (snakes.isNotEmpty()) {
+            val eatenApples =
+                snakes.asSequence().onEach { it.tick(blockSize) }
+                    .map { it to apples.find { apple -> apple.position == it.head() } }
+                    .filter { it.second != null }
+                    .onEach { it.first.onApplePossiblyEaten(it.second) }
+                    .mapNotNull { it.second }
+            apples.removeAll(eatenApples)
+            val random = Random.nextDouble()
+            if (random < 0.003) addRedTomato()
+            if (random < 0.002) addRedMushroom()
+            if (apples.isEmpty()) addRedTomato()
+            snakes.removeAll { it.head().isInCollision() }
+        }
         step += 1
     }
 
@@ -49,15 +59,19 @@ data class Game(
     fun addPlayer(id: String) {
         println("Adding player id: $id")
         addSnake(id)
-        addApple()
+        addRedTomato()
     }
 
     fun addSnake(id: String) {
         this.snakes.add(generateRandomSnake(id))
     }
 
-    fun addApple() {
-        this.apples.add(Apple(randomEmptyPosition()))
+    fun addRedTomato() {
+        this.apples.add(Apple.RedTomato(randomEmptyPosition()))
+    }
+
+    fun addRedMushroom() {
+        this.apples.add(Apple.RedMushroom(randomEmptyPosition()))
     }
 
     private fun randomEmptyPosition(nearCenter: Boolean = false): Position  {
@@ -77,7 +91,7 @@ data class Game(
             val y = (minY until maxY).shuffled().first { it % blockSize == 0 }
             position = Position(x, y)
         }
-        return position!!
+        return position
     }
 
     private fun Position.isOccupied(): Boolean = snakes.any { it.occupies(this) } || apples.any { it.occupies(this) }

@@ -1,5 +1,6 @@
 package com.ehmeed.common.snake.serialization
 
+import com.ehmeed.common.snake.domain.Apple
 import com.ehmeed.common.snake.domain.RegularSnake
 import com.ehmeed.common.snake.domain.Snake
 import com.ehmeed.common.snake.net.Command
@@ -13,6 +14,11 @@ val jsonSerializer = Json(JsonConfiguration.Stable, context = SerializersModule 
     }
     polymorphic(Command::class) {
         Command.Register::class with Command.Register.serializer()
+        Command.CreateGame::class with Command.CreateGame.serializer()
         Command.Turn::class with Command.Turn.serializer()
+    }
+
+    polymorphic(Apple::class) {
+        Apple.RedTomato::class with Apple.RedTomato.serializer()
     }
 })

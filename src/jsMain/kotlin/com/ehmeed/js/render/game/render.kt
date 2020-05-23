@@ -1,8 +1,6 @@
-package com.ehmeed.js.render
+package com.ehmeed.js.render.game
 
 import com.ehmeed.common.snake.Game
-import com.ehmeed.common.snake.domain.Direction
-import com.ehmeed.js.snakeId
 import org.w3c.dom.CanvasRenderingContext2D
 
 

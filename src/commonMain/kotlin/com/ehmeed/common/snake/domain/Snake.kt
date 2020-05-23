@@ -6,9 +6,10 @@ interface Snake {
     val id: String
     val direction: Direction
     val score: Int
+    val speed: Int
     fun head(): Position
-    fun step(blockSize: Int)
+    fun tick(blockSize: Int)
     fun occupies(position: Position): Boolean
-    fun onAppleEaten()
+    fun onApplePossiblyEaten(apple: Apple?)
     fun changeDirection(direction: Direction)
 }

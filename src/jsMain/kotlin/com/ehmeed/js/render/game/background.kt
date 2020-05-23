@@ -1,4 +1,4 @@
-package com.ehmeed.js.render
+package com.ehmeed.js.render.game
 
 import com.ehmeed.common.snake.Game
 import org.w3c.dom.CanvasRenderingContext2D
